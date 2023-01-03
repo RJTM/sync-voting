@@ -5,8 +5,8 @@ import { useReadLocalStorage } from "usehooks-ts";
 
 export function Index() {
   const userName = useReadLocalStorage<string>("userName");
-  const [scoreRoom] = useState(() => nanoid());
-  const [estimateRoom] = useState(() => nanoid());
+  const [scoreRoom] = useState(() => nanoid(10));
+  const [estimateRoom] = useState(() => nanoid(10));
 
   return (
     <div className="w-screen h-screen flex flex-col space-y-8 justify-center items-center">

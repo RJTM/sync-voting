@@ -1,22 +1,23 @@
+import { liveblocks, WithLiveblocks } from "@liveblocks/zustand";
 import create from "zustand";
-import { middleware } from "@liveblocks/zustand";
 import { client } from "./liveblocks.config";
 
 interface ScoreState {
-  score: number;
-  name: string;
+  score?: number;
+  name?: string;
   shouldReveal: boolean;
   hasVoted: boolean;
   setScore: (score: number) => void;
   setName: (name: string) => void;
   reveal: () => void;
+  reset: () => void;
 }
 
-const useStore = create(
-  middleware(
+const useStore = create<
+  WithLiveblocks<ScoreState, Pick<ScoreState, "score" | "name" | "hasVoted">>
+>()(
+  liveblocks(
     (set) => ({
-      score: undefined,
-      name: "",
       shouldReveal: false,
       hasVoted: false,
       setScore: (score: number) => set({ score, hasVoted: true }),

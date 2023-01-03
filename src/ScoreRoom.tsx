@@ -1,17 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useParams } from "react-router-dom";
-import { useDarkMode, useReadLocalStorage } from "usehooks-ts";
+import { useDocumentTitle, useReadLocalStorage } from "usehooks-ts";
 import useStore from "./score.store";
 
 export function ScoreRoom() {
   const params = useParams();
-  const userName = useReadLocalStorage("userName");
+  const userName = useReadLocalStorage("userName") as string;
   const {
     shouldReveal,
     liveblocks: { enterRoom, leaveRoom },
   } = useStore();
   const setName = useStore((state) => state.setName);
+
+  useDocumentTitle("Scoring...");
 
   useEffect(() => {
     if (userName != null) {
@@ -20,7 +22,7 @@ export function ScoreRoom() {
   }, [userName]);
 
   useEffect(() => {
-    enterRoom(params.roomId!, { score: undefined });
+    enterRoom(params.roomId!);
 
     return () => {
       leaveRoom(params.roomId!);
@@ -45,8 +47,8 @@ function Others() {
       {others.map((other) => (
         <UserBubble
           key={other.connectionId}
-          name={other.presence?.name}
-          voted={other.presence?.hasVoted}
+          name={other.presence.name}
+          voted={other.presence.hasVoted}
         />
       ))}
     </ul>
@@ -54,8 +56,8 @@ function Others() {
 }
 
 type UserBubbleProps = {
-  name: string | undefined;
-  voted: boolean;
+  name?: string;
+  voted?: boolean;
 };
 
 function UserBubble({ name, voted = false }: UserBubbleProps) {
@@ -144,12 +146,13 @@ function Results() {
     (user) => user.presence != null && user.presence.score != null
   );
   const othersSum = usersWithScore.reduce(
-    (sum, user) => user.presence!.score + sum,
+    (sum, user) => user.presence.score! + sum,
     0
   );
+
   const overallScore =
     score != null
-      ? (othersSum + score) / usersWithScore.length + 1
+      ? (othersSum + score) / (usersWithScore.length + 1)
       : othersSum / usersWithScore.length;
 
   return (
@@ -157,7 +160,7 @@ function Results() {
       <ul>
         {usersWithScore.map((user) => (
           <li key={user.connectionId} className="text-white font-bold text-xl">
-            {user.presence!.name} {"⭐️".repeat(user.presence!.score)}{" "}
+            {user.presence!.name} {"⭐️".repeat(user.presence.score!)}{" "}
             {user.presence!.score}
           </li>
         ))}
